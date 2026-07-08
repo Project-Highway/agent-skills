@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "agent-skills",
+      "name": "highway-skills",
       "source": {
         "source": "github",
         "repo": "Project-Highway/agent-skills"
@@ -16,7 +16,18 @@
       "description": "Production-grade engineering skills covering every phase of software development: spec, plan, build, verify, review, and ship.",
       "homepage": "https://github.com/Project-Highway/agent-skills",
       "license": "MIT",
-      "keywords": ["skills", "agents", "engineering", "spec", "tdd", "review", "ship"]
+      "keywords": [
+        "skills",
+        "agents",
+        "engineering",
+        "spec",
+        "tdd",
+        "review",
+        "ship"
+      ]
     }
-  ]
+  ],
+  "renames": {
+    "agent-skills": "highway-skills"
+  }
 }
