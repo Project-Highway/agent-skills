@@ -48,7 +48,7 @@ Pick one; each is live on a Highway property today:
 | **A — No footer** | Dashboard (`hway-fe`) | Legal & help links live in the user menu (Terms & Privacy, Help & Support) |
 | **B — Single muted line** | Onboarding | One short left-anchored text row (`mt-16 text-xs text-muted`); no links pinned right |
 | **C — Tall columnar footer** | Website | Logo + copyright anchored left, link columns above the bottom edge; the corner stays empty |
-| **D — Thin utility bar with a reserved right edge** | Bridge (target) | Either group all content left, or keep `justify-between` and add `md:pr-24` to the content row |
+| **D — Thin utility bar with a reserved right edge** | Bridge (target) | Either group all content left, or keep `justify-between` and add `pr-24` to the content row — at **all** widths, not just `md:` (the corner rule holds on mobile too, and at 375px right-aligned links otherwise overlap the zone by ~80px) |
 
 **Not approved:** a thin bar whose right-aligned content runs to the container edge
 (`justify-between` with no reservation) — that is the HWAY-320 collision.
