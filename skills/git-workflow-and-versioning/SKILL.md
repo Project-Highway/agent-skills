@@ -1,6 +1,6 @@
 ---
 name: git-workflow-and-versioning
-description: Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams. Use when cutting a release, choosing a semantic version bump, tagging, or writing a changelog.
+description: Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams. Use when opening a pull request — naming it, writing the description, or triggering a preview deployment. Use when cutting a release, choosing a semantic version bump, tagging, or writing a changelog.
 ---
 
 # Git Workflow and Versioning
@@ -93,6 +93,8 @@ update auth.ts
 - `docs` — Documentation only
 - `chore` — Tooling, dependencies, config
 
+These types are the default (Conventional Commits). If the repo defines its own convention — a commitlint config, CONTRIBUTING rules, or a consistent style visible in `git log --oneline -20` — the repo's convention wins.
+
 ### 4. Keep Concerns Separate
 
 Don't combine formatting changes with behavior changes. Don't combine refactors with features. Each type of change should be a separate commit — and ideally a separate PR:
@@ -125,8 +127,8 @@ Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. See t
 ```
 main (always deployable)
   │
-  ├── feature/task-creation    ← One feature per branch
-  ├── feature/user-settings    ← Parallel work
+  ├── feat/task-creation       ← One feature per branch
+  ├── feat/user-settings       ← Parallel work
   └── fix/duplicate-tasks      ← Bug fixes
 ```
 
@@ -137,12 +139,18 @@ main (always deployable)
 
 ### Branch Naming
 
+Branch prefixes mirror the commit types, so branch name, commit messages, and PR title share one vocabulary:
+
 ```
-feature/<short-description>   → feature/task-creation
+feat/<short-description>      → feat/task-creation
 fix/<short-description>       → fix/duplicate-tasks
-chore/<short-description>     → chore/update-deps
 refactor/<short-description>  → refactor/auth-module
+test/<short-description>      → test/payments-integration
+docs/<short-description>      → docs/api-examples
+chore/<short-description>     → chore/update-deps
 ```
+
+A ticket ID slots in after the prefix when one exists (`feat/HW-123-task-creation`) — issue trackers like Linear auto-link branches containing the ticket ID. As with commit messages, a repo-defined naming convention overrides these defaults.
 
 ## Working with Worktrees
 
@@ -150,8 +158,8 @@ For parallel AI agent work, use git worktrees to run multiple branches simultane
 
 ```bash
 # Create a worktree for a feature branch
-git worktree add ../project-feature-a feature/task-creation
-git worktree add ../project-feature-b feature/user-settings
+git worktree add ../project-feature-a feat/task-creation
+git worktree add ../project-feature-b feat/user-settings
 
 # Each worktree is a separate directory with its own branch
 # Agents can work in parallel without interfering
@@ -247,6 +255,41 @@ Automate this with git hooks:
 - **Don't commit** build output (`dist/`, `.next/`), environment files (`.env`), or IDE config (`.vscode/settings.json` unless shared)
 - **Have a `.gitignore`** that covers: `node_modules/`, `dist/`, `.env`, `.env.local`, `*.pem`
 
+## Opening the Pull Request
+
+A PR is the unit of review. The repo's own rules come first: a PR template (`.github/pull_request_template.md`), CONTRIBUTING.md, or CLAUDE.md conventions override every default below. Check them — and the style of recently merged PRs — before opening.
+
+### Title
+
+Default: the same conventional format as commit messages — `<type>: <short description>`.
+
+```
+feat: add bulk task import via CSV
+fix: prevent duplicate tasks on double-submit
+```
+
+On squash-merge the PR title becomes the commit on main, and changelog/release tooling (release-please, semantic-release) parses it — hold the title to the same standard as a commit message, not a decoration.
+
+### Body
+
+Use the repo's PR template when one exists — fill in its sections rather than replacing them. Otherwise, structure the body as the change summary you already produced (see Change Summaries above) plus how the change was verified. Link the ticket so it closes on merge (`Closes #123`).
+
+### Trigger the Preview Deployment
+
+If the repo has preview deployments (see the `ci-cd-and-automation` skill), opening the PR is the moment to trigger one. The mechanism is repo-specific — detect it, never assume:
+
+1. **Scan `.github/workflows/*.yml`** for `pull_request`-triggered deploy jobs. A `types: [labeled]` trigger plus a label condition (e.g. `contains(github.event.pull_request.labels.*.name, 'preview')`) means previews are label-gated.
+2. **Check the repo docs** (CLAUDE.md, CONTRIBUTING.md, README). App integrations like Vercel and Netlify deploy every PR automatically and leave no trace in `workflows/` — absence of a workflow file doesn't mean absence of previews.
+
+| Detected mechanism | Action |
+|---|---|
+| Automatic (app integration, ungated deploy job) | Nothing — the preview link appears on its own |
+| Label-gated (e.g. a `preview` label) | Add the label; without label permission (fork PRs), note in the body: "add the `preview` label for a preview deploy" |
+| Comment command (`/deploy-preview` style) | Post the command after opening |
+| Nothing found | Skip — don't invent a mechanism |
+
+Trigger previews for changes with a user-visible surface; skip drafts and docs-only changes — label-gating usually exists precisely because previews cost CI resources. The first time you discover a repo's mechanism, record it in that repo's CLAUDE.md so the next session doesn't re-derive it.
+
 ## Using Git for Debugging
 
 ```bash
@@ -320,6 +363,8 @@ Write the entry in the same change that makes the change, while the impact is fr
 | "Branches add overhead" | Short-lived branches are free and prevent conflicting work from colliding. Long-lived branches are the problem — merge within 1-3 days. |
 | "I'll split this change later" | Large changes are harder to review, riskier to deploy, and harder to revert. Split before submitting, not after. |
 | "I don't need a .gitignore" | Until `.env` with production secrets gets committed. Set it up immediately. |
+| "The PR title is just a label" | On squash-merge it becomes the commit on main, and release tooling parses it. Title it like a commit. |
+| "Preview deploys are the reviewer's problem" | A reviewer without a preview link reviews UI changes blind. Detect the repo's mechanism and trigger it at PR-open time. |
 | "It's just a small fix, bump the patch" | Check what consumers can observe. A behavior change they relied on is a major, whatever the diff size. |
 | "The changelog is just the commit log" | Commits are for you; the changelog is for consumers, curated by impact. Generating one from raw commits buries what matters. |
 | "We'll write the changelog at release time" | By then the impact is reconstructed from memory and half of it is missing. Write the entry with the change. |
@@ -333,6 +378,8 @@ Write the entry in the same change that makes the change, while the impact is fr
 - Committing `node_modules/`, `.env`, or build artifacts
 - Long-lived branches that diverge significantly from main
 - Force-pushing to shared branches
+- A PR that ignores the repo's template or title convention
+- A UI change opened without a preview deployment in a repo that supports them
 - A breaking change shipped under a minor or patch version bump
 - A release with no tag, or a version number hand-edited out of sync with the tag
 - A user-facing release with no changelog entry, or a changelog that's just dumped commit messages
@@ -348,7 +395,12 @@ For every commit:
 - [ ] No formatting-only changes mixed with behavior changes
 - [ ] `.gitignore` covers standard exclusions
 
-For every release (anything with consumers):
+For every pull request:
+
+- [ ] Branch name uses the type prefix matching the change (`feat/`, `fix/`, ...), with the ticket ID when one exists
+- [ ] Title follows the repo's convention — default `<type>: <short description>`
+- [ ] Body uses the repo's PR template (or the change summary format) and links the ticket
+- [ ] Preview deployment triggered per the repo's mechanism, or confirmed automatic/absent
 
 - [ ] The version bump matches the change: breaking → major, additive → minor, fix → patch
 - [ ] The release is tagged, and the version is derived from the tag, not hand-edited out of sync
