@@ -149,6 +149,10 @@ Before looking at code, understand the intent:
 - What is the expected behavior change?
 ```
 
+For diffs touching client-facing UI chrome (footers, fixed/sticky overlays, toasts,
+banners, chatbot embeds, `100dvh` layout math), also load
+`highway-client-facing-styleguide` and review against its rules.
+
 ### Step 2: Review the Tests First
 
 Tests reveal intent and coverage:
@@ -340,6 +344,8 @@ Part of code review is dependency review:
 
 - For detailed security review guidance, see `references/security-checklist.md`
 - For performance review checks, see `references/performance-checklist.md`
+- For client-facing UI chrome rules (chatbot corner, footers, fixed overlays), see
+  `skills/highway-client-facing-styleguide/SKILL.md`
 
 ## Common Rationalizations
 

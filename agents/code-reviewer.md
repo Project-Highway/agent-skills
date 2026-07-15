@@ -89,6 +89,11 @@ Categorize every finding:
 4. Don't approve code with Critical issues
 5. Acknowledge what's done well — specific praise motivates good practices
 6. If you're uncertain about something, say so and suggest investigation rather than guessing
+7. If the diff touches client-facing UI chrome — footers, fixed/sticky overlays, toasts,
+   banners, the chatbot embed, or `100dvh`/`100vh` layout math — review it against
+   `skills/highway-client-facing-styleguide/SKILL.md` (the reserved chatbot corner,
+   approved footer patterns, viewport-height discipline) and categorize violations per
+   that skill's Review Guidance section
 
 ## Composition
 
