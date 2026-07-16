@@ -53,6 +53,14 @@ Pick one; each is live on a Highway property today:
 **Not approved:** a thin bar whose right-aligned content runs to the container edge
 (`justify-between` with no reservation) — that is the HWAY-320 collision.
 
+**Bar-height rule (thin-bar footers):** the launcher's frame is 84×84px and iframes
+clip their content, so 84px above the viewport bottom is the hard cap of any bubble
+styling — hover growth included (it is a visual transform inside the frame and never
+affects layout). A bar must either **fully dock the bubble** (band ≥ 88px; the bridge
+uses `py-9` = 89px) or **stay clearly below its resting top** (≤ ~52px — the bubble
+then floats above the bar). Bands of ~55–80px make the bubble straddle the border,
+which reads as broken alignment.
+
 ## All Fixed Bottom-Layer UI
 
 - **Toasts / snackbars:** offset the stack left of the zone (`fixed bottom-6 … md:right-24`,
