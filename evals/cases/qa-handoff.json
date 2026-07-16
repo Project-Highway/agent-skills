@@ -1,0 +1,42 @@
+{
+  "skill_name": "qa-handoff",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "Generate a QA handoff for this branch",
+        "top_k": 3
+      },
+      {
+        "prompt": "What should QA test for the changes in PR 42?",
+        "top_k": 3
+      },
+      {
+        "prompt": "The ticket is moving to testing — prepare a test plan from the diff",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Review this code for bugs before merge",
+        "owner": "code-review-and-quality"
+      },
+      {
+        "prompt": "Write unit tests for the parser module",
+        "owner": "test-driven-development"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate a QA handoff for the last commit.",
+      "expected_output": "A handoff document with full file coverage, concrete checks, and a justified risk level",
+      "expectations": [
+        "Every file from git diff --name-status appears in a coverage table",
+        "Checklist items name concrete locations, actions, and expected results rather than generic 'test it works' steps",
+        "Includes a 'What is NOT impacted' section and a Low/Medium/High risk level justified by the diff"
+      ],
+      "trust_level": "provisional"
+    }
+  ]
+}

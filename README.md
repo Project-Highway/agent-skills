@@ -245,6 +245,7 @@ The commands above are entry points. The pack includes 24 skills total — 23 li
 | [documentation-and-adrs](skills/documentation-and-adrs/SKILL.md) | Architecture Decision Records, API docs, inline documentation standards - document the *why* | Making architectural decisions, changing APIs, or shipping features |
 | [observability-and-instrumentation](skills/observability-and-instrumentation/SKILL.md) | Structured logging, RED metrics, OpenTelemetry tracing, symptom-based alerting - instrument as you build | Adding telemetry, or shipping anything that runs in production |
 | [shipping-and-launch](skills/shipping-and-launch/SKILL.md) | Pre-launch checklists, feature flag lifecycle, staged rollouts, rollback procedures, monitoring setup | Preparing to deploy to production |
+| [qa-handoff](skills/qa-handoff/SKILL.md) | Tracker-ready QA handoff from the git diff - canonical file ledger, concrete checks, risk routing (Low/Medium/High), 100% coverage proof | A change is ready to hand to QA, or a ticket needs a test plan |
 
 ---
 
