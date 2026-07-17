@@ -56,10 +56,15 @@ Pick one; each is live on a Highway property today:
 **Bar-height rule (thin-bar footers):** the launcher's frame is 84×84px and iframes
 clip their content, so 84px above the viewport bottom is the hard cap of any bubble
 styling — hover growth included (it is a visual transform inside the frame and never
-affects layout). A bar must either **fully dock the bubble** (band ≥ 88px; the bridge
-uses `py-9` = 89px) or **stay clearly below its resting top** (≤ ~52px — the bubble
-then floats above the bar). Bands of ~55–80px make the bubble straddle the border,
-which reads as broken alignment.
+affects layout). A bar must either **dock the bubble at exactly the frame height**
+(fixed `h-[84px]` band with flex-centered content — the bridge's approach) or **stay
+clearly below its resting top** (≤ ~52px — the bubble then floats above the bar).
+84px is the only dock height that also **centers** the bubble vertically (14px above
+and below): its bottom inset is fixed by the widget, so any taller band sits it
+visibly off-center (89px → 14/19), and bands of ~55–80px make it straddle the
+border. Prefer a fixed height over padding — the band stays constant when long
+locales wrap, and the 1px border counts inside via border-box (chrome budgets lose
+their `+1px`).
 
 ## All Fixed Bottom-Layer UI
 
