@@ -1,6 +1,6 @@
 ---
 name: qa-handoff
-description: Generates a tracker-ready QA handoff and test plan from a git diff — canonical file ledger, concrete per-file checks, risk level, and coverage proof. Use when a change is ready to hand to QA, when asked "what should QA test here", or when a ticket needs a test plan before moving to testing. Works on any stack; the diff is the single source of truth.
+description: Generates a tracker-ready QA handoff and test plan from a git diff — canonical file ledger, concrete per-file checks, risk level, and coverage proof. Use when a diff is ready to hand to QA, when asked "what should QA test here", or when a ticket needs a test plan before moving to testing. Works on any stack; the diff is the single source of truth.
 ---
 
 # QA Handoff Generator

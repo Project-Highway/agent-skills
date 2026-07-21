@@ -29,14 +29,16 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Generate a QA handoff for the last commit.",
+      "prompt": "Generate a QA handoff for the pending changes on this branch.",
       "expected_output": "A handoff document with full file coverage, concrete checks, and a justified risk level",
+      "files": [
+        "qa-handoff"
+      ],
       "expectations": [
         "Every file from git diff --name-status appears in a coverage table",
         "Checklist items name concrete locations, actions, and expected results rather than generic 'test it works' steps",
         "Includes a 'What is NOT impacted' section and a Low/Medium/High risk level justified by the diff"
-      ],
-      "trust_level": "provisional"
+      ]
     }
   ]
 }
