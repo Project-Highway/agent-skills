@@ -31,12 +31,14 @@
       "id": 1,
       "prompt": "Add a floating 'Back to top' button to the bridge app.",
       "expected_output": "A floating control placed outside the chatbot's reserved bottom-right corner",
+      "files": [
+        "highway-client-facing-styleguide"
+      ],
       "expectations": [
         "The control is not placed in the bottom-right corner, or is offset at least 96px from it",
         "The chatbot launcher's reserved zone is explicitly considered",
         "Placement is verified at multiple viewport widths, not just one screen"
-      ],
-      "trust_level": "provisional"
+      ]
     }
   ]
 }

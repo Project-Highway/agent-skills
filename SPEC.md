@@ -1,6 +1,6 @@
 # Spec: Restore green eval CI for the fork's two custom skills
 
-> Status: DRAFT — awaiting review before implementation.
+> Status: IMPLEMENTED — the full CI eval/validation job is green (exit 0).
 > Branch: `claude/fork-sync-latest-changes-yr4q09`
 
 ## Objective
@@ -26,14 +26,20 @@ again for our two skills, without weakening the gate itself.**
 Give each custom eval case a **real execution fixture** and drop the `provisional`
 trust level, mirroring the patterns already used by upstream fixtures.
 
+### Also resolved (was initially out of scope)
+
+- `✗ incremental-implementation: positive prompt ranked #4` — a pre-existing
+  corpus-dilution effect that also kept the CI gate red. Root-caused to **our own**
+  `qa-handoff` description leaning on the generic word "change", which lowered the
+  IDF of that term (1.386 → 1.281) — the exact term `incremental-implementation`
+  routes on. Fixed by a one-word, fork-owned swap ("a change is ready" → "a diff is
+  ready") that reuses a term already in qa-handoff's description, so no other skill's
+  routing is perturbed. This is the routing evals' intended feedback loop, not gaming.
+
 ### Explicitly out of scope
 
-- `✗ incremental-implementation: positive prompt ranked #4` — a **pre-existing**
-  corpus-dilution effect (adding our 2 skills shifts relative routing scores). It was
-  already failing on our branch *before* the sync, involves an upstream skill's
-  ranking, and is tracked as an Open Question, not fixed here.
 - Any change to `scripts/run-evals.js` or the gate logic.
-- Upstream skill descriptions or their eval cases.
+- Upstream skill descriptions or their eval cases (the fix above is fork-owned).
 
 ## Tech Stack
 
@@ -148,17 +154,14 @@ target errors are gone and no new fixture-resolution errors appear.
    introduces no new fixture errors.
 3. `node scripts/validate-skills.js` stays **26 skills — 0 errors — PASSED**.
 4. `node scripts/validate-commands.js` stays **PASSED**.
-5. The remaining `incremental-implementation` ranking error is unchanged and
-   documented as out of scope (see Open Questions) — it is not newly introduced by
-   this work.
+5. `node scripts/run-evals.js --min-rank1 80` (the exact CI command) exits 0 with
+   0 errors, `incremental-implementation` back in top-3, rank-1 rate 87%.
 
-## Open Questions
+## Resolved Questions
 
-1. **qa-handoff eval prompt vs. fixture mechanism.** The current prompt says "for the
-   *last commit*," but `materializeWorkspace()` commits only the baseline and applies
-   `.eval/working-tree.patch` to the **working tree** (uncommitted). For consistency I
-   plan to reword the prompt to "the pending changes on this branch" so `git diff`
-   surfaces the fixture change — matching how the qa-handoff skill reads a diff.
-   Flagging because it changes the eval prompt text. OK to reword?
-2. **incremental-implementation #4.** Leave as-is (pre-existing, upstream-owned), or
-   open a separate follow-up to tune routing? Not addressed by this spec.
+1. **qa-handoff eval prompt vs. fixture mechanism.** Reworded "for the last commit" →
+   "the pending changes on this branch" so `git diff` surfaces the fixture change the
+   `.eval/working-tree.patch` applies to the working tree. Verified: the patch applies
+   cleanly and `git diff --name-status` lists both modified files.
+2. **incremental-implementation #4.** Resolved via the fork-owned qa-handoff
+   description tweak (see "Also resolved" above) rather than deferred.

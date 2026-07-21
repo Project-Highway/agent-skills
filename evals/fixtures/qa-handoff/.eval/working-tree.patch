@@ -1,0 +1,47 @@
+diff --git a/qa-handoff/transfers.js b/qa-handoff/transfers.js
+index 8af1148..faf6b42 100644
+--- a/qa-handoff/transfers.js
++++ b/qa-handoff/transfers.js
+@@ -1,13 +1,15 @@
+ 'use strict';
+ 
+ // Transfer history for a user's account, backed by an in-memory store.
+-function listTransfers(store, userId) {
+-  return store.filter((t) => t.userId === userId);
++function listTransfers(store, userId, { status } = {}) {
++  return store.filter(
++    (t) => t.userId === userId && (status === undefined || t.status === status),
++  );
+ }
+ 
+ function totalOut(store, userId) {
+   return listTransfers(store, userId)
+-    .filter((t) => t.direction === 'out')
++    .filter((t) => t.direction === 'out' && t.status === 'settled')
+     .reduce((sum, t) => sum + t.amount, 0);
+ }
+ 
+diff --git a/qa-handoff/transfers.test.js b/qa-handoff/transfers.test.js
+index 39fbb17..80447fd 100644
+--- a/qa-handoff/transfers.test.js
++++ b/qa-handoff/transfers.test.js
+@@ -8,12 +8,17 @@ const store = [
+   { id: 1, userId: 'u1', direction: 'out', amount: 20, status: 'settled' },
+   { id: 2, userId: 'u1', direction: 'in', amount: 50, status: 'settled' },
+   { id: 3, userId: 'u2', direction: 'out', amount: 10, status: 'settled' },
++  { id: 4, userId: 'u1', direction: 'out', amount: 5, status: 'pending' },
+ ];
+ 
+ test('lists only the requested user transfers', () => {
+-  assert.equal(listTransfers(store, 'u1').length, 2);
++  assert.equal(listTransfers(store, 'u1').length, 3);
+ });
+ 
+-test('sums outgoing transfers for a user', () => {
++test('filters a user transfers by status', () => {
++  assert.equal(listTransfers(store, 'u1', { status: 'pending' }).length, 1);
++});
++
++test('sums only settled outgoing transfers for a user', () => {
+   assert.equal(totalOut(store, 'u1'), 20);
+ });
