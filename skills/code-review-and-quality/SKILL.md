@@ -352,10 +352,10 @@ For triaging `npm audit` findings and supply-chain risk (typosquatting, compromi
 ```
 ## See Also
 
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
+- For detailed security review guidance, see `../../references/security-checklist.md`
+- For performance review checks, see `../../references/performance-checklist.md`
 - For client-facing UI chrome rules (chatbot corner, footers, fixed overlays), see
-  `skills/highway-client-facing-styleguide/SKILL.md`
+  `../highway-client-facing-styleguide/SKILL.md`
 
 ## Common Rationalizations
 
