@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "highway-skills",
-      "version": "0.6.7",
+      "version": "0.6.9",
       "source": {
         "source": "github",
         "repo": "Project-Highway/agent-skills"
