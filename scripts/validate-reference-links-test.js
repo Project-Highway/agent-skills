@@ -17,6 +17,8 @@ function makeSandbox() {
   const scriptsDir = path.join(root, 'scripts');
   fs.mkdirSync(scriptsDir, { recursive: true });
   fs.copyFileSync(VALIDATOR, path.join(scriptsDir, 'validate-reference-links.js'));
+  fs.mkdirSync(path.join(scriptsDir, 'lib'));
+  fs.copyFileSync(path.join(__dirname, 'lib', 'skill-lint.js'), path.join(scriptsDir, 'lib', 'skill-lint.js'));
   sandboxes.push(root);
   return root;
 }
@@ -150,4 +152,130 @@ test('reports every unresolvable link, not just the first per skill', () => {
 
   assert.equal(result.status, 1, result.stdout + result.stderr);
   assert.match(result.stdout, /1 skills checked — 2 error\(s\) — FAILED/);
+});
+
+test('a link inside a fenced block is an example, not a link to resolve', () => {
+  const root = makeSandbox();
+  writeFile(root, 'references/definition-of-done.md', '# DoD\n');
+  writeFile(
+    root,
+    'skills/using-agent-skills/SKILL.md',
+    [
+      'Shared checklists live two levels up:',
+      '',
+      'See `../../references/definition-of-done.md`.',
+      '',
+      'Do not write it this way:',
+      '',
+      '```markdown',
+      '[Definition of Done](references/definition-of-done.md)',
+      '```',
+      '',
+    ].join('\n')
+  );
+
+  const result = run(root);
+
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /1 skills checked — 0 error\(s\) — PASSED/);
+});
+
+test('fence exemption follows CommonMark rather than a bare ``` match', () => {
+  const root = makeSandbox();
+  writeFile(
+    root,
+    'skills/using-agent-skills/SKILL.md',
+    [
+      '~~~markdown',
+      '[a](references/missing-a.md)',
+      '```',                                  // wrong marker: must not close the ~~~ block
+      '[b](references/missing-b.md)',
+      '~~~',
+      '',
+      '   ```markdown',                       // three-space indent is still a fence
+      '[c](references/missing-c.md)',
+      '   `````',                             // a longer closer is legal
+      '',
+    ].join('\n')
+  );
+
+  const result = run(root);
+
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /0 error\(s\) — PASSED/);
+});
+
+test('a real broken link outside any fence is still reported', () => {
+  const root = makeSandbox();
+  writeFile(
+    root,
+    'skills/using-agent-skills/SKILL.md',
+    [
+      '```markdown',
+      '[shown as an example](references/example-only.md)',
+      '```',
+      '',
+      'See `references/definition-of-done.md`.',   // genuinely wrong, outside the fence
+      '',
+    ].join('\n')
+  );
+
+  const result = run(root);
+
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /1 skills checked — 1 error\(s\) — FAILED/);
+  assert.match(result.stdout, /L5: references\/definition-of-done\.md/);
+});
+
+for (const [ending, newline] of [['LF', '\n'], ['CRLF', '\r\n']]) {
+  test(`inline backticks do not hide subsequent broken links (${ending})`, () => {
+    const root = makeSandbox();
+    writeFile(root, 'skills/example/SKILL.md', [
+      '```js``` is inline code, not a fence opener.',
+      'See [missing](references/missing.md).',
+      '',
+    ].join(newline));
+
+    const result = run(root);
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout, /L2: references\/missing\.md/);
+    assert.match(result.stdout, /1 skills checked — 1 error\(s\) — FAILED/);
+  });
+
+  for (const marker of ['```', '~~~']) {
+    test(`trailing text does not close a ${marker} fence (${ending})`, () => {
+      const root = makeSandbox();
+      writeFile(root, 'skills/example/SKILL.md', [
+        marker + 'markdown',
+        marker + ' still part of the example',
+        '[example](references/example-only.md)',
+        marker + ' \t',
+        '[real link](references/missing.md)',
+        '',
+      ].join(newline));
+
+      const result = run(root);
+
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stdout, /L5: references\/missing\.md/);
+      assert.match(result.stdout, /1 skills checked — 1 error\(s\) — FAILED/);
+      assert.doesNotMatch(result.stdout, /example-only\.md/);
+    });
+  }
+}
+
+test('tilde fence info strings may contain backticks', () => {
+  const root = makeSandbox();
+  writeFile(root, 'skills/example/SKILL.md', [
+    '~~~example `code`',
+    '[example](references/example-only.md)',
+    '~~~',
+    '',
+  ].join('\n'));
+
+  const result = run(root);
+
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /1 skills checked — 0 error\(s\) — PASSED/);
 });

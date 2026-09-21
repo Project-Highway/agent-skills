@@ -25,6 +25,12 @@
  * mention paths that do not exist yet (`tasks/todo.md`, `PERF.md`,
  * `docs/ideas/[idea-name].md`), and those must not fail the build.
  *
+ * Fenced code blocks are exempt for the same reason. Text inside a fence is
+ * an example, not a link an agent will follow — and this rule in particular
+ * has to be documentable: the failure message below tells authors to write
+ * `../../references/<file>.md` rather than `references/<file>.md`, which no
+ * skill could show as an example without failing the very check explaining it.
+ *
  * Exit codes: 0 = all clear, 1 = one or more unresolvable links.
  */
 
@@ -32,6 +38,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { stripFencedCodeBlocks } = require('./lib/skill-lint');
 
 const ROOT = path.resolve(__dirname, '..');
 const SKILLS_DIR = path.join(ROOT, 'skills');
@@ -43,7 +50,8 @@ const REFERENCE_LINK_RE = /(?<![A-Za-z0-9._/-])((?:\.\.\/)*references\/[A-Za-z0-
 
 function findViolations(skillDir, skillFile) {
   const violations = [];
-  const lines = fs.readFileSync(skillFile, 'utf8').split(/\r?\n/);
+  // Share the linter's fence rules; blanked lines preserve diagnostic positions.
+  const lines = stripFencedCodeBlocks(fs.readFileSync(skillFile, 'utf8')).split('\n');
 
   lines.forEach((line, i) => {
     for (const match of line.matchAll(REFERENCE_LINK_RE)) {
@@ -82,7 +90,7 @@ function main() {
     } else {
       console.log(`  ✗  skills/${name}/SKILL.md`);
       for (const { line, link } of violations) {
-        const resolved = path.relative(ROOT, path.resolve(skillDir, link));
+        const resolved = path.relative(ROOT, path.resolve(skillDir, link)).split(path.sep).join('/');
         console.log(`       L${line}: ${link} — resolves to ${resolved}, which does not exist`);
         errors++;
       }
