@@ -22,6 +22,9 @@ jobs:
       - name: Validate all skills
         run: node scripts/validate-skills.js
 
+      - name: Test skill lint rules
+        run: node --test scripts/lib/skill-lint-test.js
+
       - name: Validate manifest versions
         run: node scripts/validate-versions.js
 
@@ -39,6 +42,9 @@ jobs:
 
       - name: Test reference-link validator
         run: node --test scripts/validate-reference-links-test.js
+
+      - name: Test session-start hook payload
+        run: bash hooks/session-start-test.sh
 
   validate-commands:
     name: Validate command parity and description sync
@@ -62,6 +68,18 @@ jobs:
 
       - name: Test artifact-path validator
         run: node --test scripts/validate-artifact-paths-test.js
+
+  test-hooks:
+    name: Hook regression tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Test sdd-cache hooks (stubbed curl, no network)
+        run: bash hooks/sdd-cache-test.sh
+
+      - name: Test simplify-ignore hook
+        run: bash hooks/simplify-ignore-test.sh
 
   validate:
     name: Validate plugin structure
