@@ -43,6 +43,9 @@ jobs:
       - name: Test reference-link validator
         run: node --test scripts/validate-reference-links-test.js
 
+      - name: Test floor-guard reference
+        run: node --test scripts/floor-guard-reference-test.js
+
       - name: Test session-start hook payload
         run: bash hooks/session-start-test.sh
 
@@ -96,6 +99,7 @@ jobs:
           scripts/validate-reference-links-test.js
           scripts/validate-commands-test.js
           scripts/validate-artifact-paths-test.js
+          scripts/floor-guard-reference-test.js
 
       - name: Validate all skills
         run: node scripts/validate-skills.js
