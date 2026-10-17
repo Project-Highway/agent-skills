@@ -107,13 +107,14 @@ One snippet, one bot id, one position — copy verbatim, change only the placeho
 
 ## Review Guidance (for code reviewers)
 
-When reviewing a diff that touches the surfaces above, categorize violations:
+When reviewing a diff that touches the surfaces above, categorize violations with the
+`code-review-and-quality` severity labels:
 
 - **Critical** — interactive content (links, buttons) inside the reserved corner; page
   UI layered above the widget; a second floating launcher in the corner.
-- **Important** — non-interactive content in the corner; a bottom banner/toast without
+- **Required** — non-interactive content in the corner; a bottom banner/toast without
   the ≥ 96 px reservation; `100dvh` arithmetic without a derivation comment.
-- **Suggestion** — footer pattern drift (e.g. new one-off footer style instead of
+- **Optional** — footer pattern drift (e.g. new one-off footer style instead of
   patterns A–D).
 
 ## Common Rationalizations
