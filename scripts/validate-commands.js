@@ -45,6 +45,7 @@ const DIRS = {
 // Key = Claude stem, value = TOML stem.
 const NAME_MAP = {
   plan: 'planning',
+  qa: 'qa-handoff', // fork: a Claude command named like a skill hides that skill
 };
 const NAME_MAP_REVERSE = Object.fromEntries(
   Object.entries(NAME_MAP).map(([k, v]) => [v, k])

@@ -1,5 +1,6 @@
 ---
 description: Generate a tracker-ready QA handoff and test plan from the git diff
+disable-model-invocation: true
 ---
 
 Invoke the highway-skills:qa-handoff skill.
