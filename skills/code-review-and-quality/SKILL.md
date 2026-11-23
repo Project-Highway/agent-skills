@@ -208,41 +208,6 @@ Check the author's verification story:
 - Is there a before/after comparison?
 ```
 
-## Pull Requests in Project-Highway and yieldy-io
-
-A pull request in either org is also held to the enterprise review and merge policy
-(`Project-Highway/github-config`, `docs/review-and-merge-policy.md`). After the five-axis
-review, answer its five points from the diff itself, not from the PR description:
-
-1. **Whole diff read.** Every changed file, including generated and config files. Name any file you did not read.
-2. **Required checks green.** Read them with `gh pr checks <n>`. A red or missing check is a finding, never something to bypass.
-3. **No secrets.** No key, token, password or credential in any file or commit of the PR.
-4. **Undo path.** For anything that reaches production (manifests, images, workflows, access, migrations): the PR says how to undo it, and separates what was verified from what was not.
-5. **Does what the title says and nothing more.** List anything in the diff the title does not cover.
-
-Then post ONE comment on the PR, and update it on a re-review rather than adding another:
-
-```
-<!-- pr-review-checklist -->
-**Review checklist** (assistant-prepared, <model>, <date>)
-1. Whole diff read: yes | no, not read: <files>
-2. Required checks: green | <failing or missing check>
-3. Secrets: none found | <file:line>
-4. Undo path: stated | not stated | not applicable (nothing reaches production)
-5. Scope: matches the title | <what is extra>
-Findings: <Critical and Required findings with file:line, or "none">
-```
-
-Find an earlier one with `gh api repos/<org>/<repo>/issues/<n>/comments --jq '.[]|select(.body|startswith("<!-- pr-review-checklist -->"))|.id'`
-and `PATCH` it; otherwise `gh pr comment <n> --body-file <file>`.
-
-Who is accountable does not change with the tool. In a strict repository (the default) this
-comment prepares the review and a person other than the author approves; an assistant asked by
-the author to review the author's own change is not that second reviewer, so never submit an
-approving review on the author's behalf. In a light repository (the named list in that policy)
-the author merges, and this comment is the review record. Every Critical or Required finding
-is answered on the PR before the merge.
-
 ## Multi-Model Review Pattern
 
 Use different models for different review perspectives:
